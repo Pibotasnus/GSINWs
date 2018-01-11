@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+""" Imports """
+
 import socket
 import select
 import os
@@ -17,40 +19,38 @@ BASE_URL = 'http://10.42.0.34:8181'
 ORIGINATOR = 'admin:admin'
 
 class FuncThread(Thread):
+    """ Redefining the thread class """
     def __init__(self, target, *args):
         self._target = target
         self._args = args
         Thread.__init__(self)
- 
+
     def run(self):
         self._target(*self._args)
 
 def on_message(ws, message):
+    """ Recv msg """
     print(message)
 
 def on_send(ws, msg):
+    """ Send msg """
     ws.send(msg)
 
 def on_error(ws, error):
+    """ If error occured """
     print(error)
 
 
 def on_close(ws):
+    """ Closing com """
     ws.close()
     print("### closed ###")
 
 
 def on_open(ws):
+    """ Opening com """
     def run(*args):
-        # for i in range(3):
-        #     # send the message, then wait
-        #     # so thread doesn't exit and socket
-        #     # isn't closed
-        #     ws.send("Hello %d" % i)
-        #     time.sleep(1)
-
         time.sleep(1)
-        # print("Thread terminating...")
 
     Thread(target=run).start()
 
