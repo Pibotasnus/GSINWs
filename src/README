@@ -1,0 +1,8 @@
+This is the product of a work done during a class of SOA
+The work requires:
+    - JAVA 8
+    - TOMCAT server to run webservices
+    - OM2M solution
+    - PYTHON 2.7
+    - Apache AXIS 2
+    - PHP
