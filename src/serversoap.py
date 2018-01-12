@@ -42,7 +42,6 @@ ROOMS_ = {'GM':4, 'GP':3, 'GEI':5}
 
 def on_message(ws, message):
     """ Recv msg """
-    print message
     global CLIENTS
     if "Clients" in message:
         configExt = ConfigParser.ConfigParser()
@@ -52,16 +51,11 @@ def on_message(ws, message):
         test = '{"TempExt": "'+configExt.get('Config', 'temp', 1)+'"}'
         on_send(ws, test)
         for i in CLIENTS:
-            print i
             if i != None:
                 to_send = json.loads(test)
                 loc, room = i.split("_")
-                print loc, room
                 if loc in LOC_:
                     for j in INFO_BS:
-                        print j
-                        print BASE_URL+"/~/"\
-                            +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la"
                         result = requestHandler(BASE_URL+"/~/"\
                             +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la", ORIGINATOR, "retrieve", "", "")
                         print result
@@ -238,9 +232,9 @@ class Server(object):
         pseudo = {}
         client_location = 'in'
         c = 0
-        configExt = ConfigParser.ConfigParser()
-        configExt.read("Config/EXT.cfg")
         while 1:
+            configExt = ConfigParser.ConfigParser()
+            configExt.read("Config/EXT.cfg")
             rlist, wlist, xlist = select.select([self.socket]+opens,[],[])
             for client in rlist:
                 if client is self.socket:
@@ -270,7 +264,6 @@ class Server(object):
                         else:
                             # print '[+] Got '+msg+ '\nFrom :'+pseudo[client]
                             if pseudo[client] == "monitor":
-                                on_message(ws, "Clients dont")
                                 sur = msg[msg.find("<sur>")+5:msg.find("</sur>")]
                                 print '[!] sur: '+sur
                                 location = sur.split('-')[0]
@@ -280,7 +273,7 @@ class Server(object):
                                 obj_name = sur.split('/')[3]
                                 print '[!] Object Name: '+obj_name
                                 type = obj_name.split('_')[0]
-                                if location is not "EXT":
+                                if "EXT" not in location:
                                     print '[!] We are in '+location
                                     config.read("Config/"+location+".cfg")
                                     if type == "lux":
@@ -311,10 +304,12 @@ class Server(object):
                                         pattern = "name=&quot;Temp&quot; val=&quot;"
                                         indx = msg.find(pattern)+len(pattern)
                                         value = msg[indx: msg.find("&quot;" , indx)]
-                                    config.set('Config', type, value)
+                                    configExt.set('Config', type, value)
                                     with open('Config/EXT.cfg', 'wb') as configfile:
-                                        config.write(configfile)
+                                        configExt.write(configfile)
+                                on_message(ws, "Clients dont")
                             if pseudo[client] == "admin":
+                                print msg
                                 client.send("Got request, Working on it")
                                 if 'ae' in msg:
                                     loc = msg.split("_")[1]
