@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+"""
+@author: Pibotasnus
+"""
+
 
 """ Imports """
 
