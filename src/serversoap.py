@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 @author: Pibotasnus
 """
@@ -314,14 +315,12 @@ class Server(object):
                                     with open('Config/EXT.cfg', 'wb') as configfile:
                                         config.write(configfile)
                             if pseudo[client] == "admin":
-                                print msg
                                 client.send("Got request, Working on it")
                                 if 'ae' in msg:
                                     loc = msg.split("_")[1]
                                     typ = msg.split("_")[0].split('":"')[-1]
                                     i   = int(msg.split('_')[2].split('","')[0])
                                     lab = msg.split('Label":"')[-1].split('"}]}')[0]
-                                    print loc, typ, i, lab
                                     try:
                                         createresource(loc, typ, i-1, lab)
                                     except Exception, e:

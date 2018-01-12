@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# -*- coding: utf-8 -*-
 """ Zeep library for webservices """
 from zeep import Client
 
@@ -17,7 +17,6 @@ def createresource(loc, typ, i, lab):
         if loc == 'EXT':
             if typ != 'lux' and typ != 'temp':
                 return
-        print 'ok'
         if typ in CAT:
             lab = CAT[typ]
         msg = "{'ae':{'Name':'"+typ+to_add+"', 'AppID':'"+typ+to_add+"',\
@@ -39,21 +38,27 @@ def createresource(loc, typ, i, lab):
 
         client = Client('http://localhost:8080/GSINWss/services/RequestHandler?wsdl')
         client.service.sendRequest('http://10.42.0.34:8181/~/'\
-                +loc+'-cse/mn-name/'+typ+'_'+str(i+1), 'admin:admin', \
+                +loc+'-cse/mn-name/'+typ+to_add, 'admin:admin', \
                 'create', cnt1xml, "3")
 
         client.service.sendRequest('http://10.42.0.34:8181/~/'\
-                +loc+'-cse/mn-name/'+typ+'_'+str(i+1), 'admin:admin', \
+                +loc+'-cse/mn-name/'+typ+to_add, 'admin:admin', \
                 'create', cnt2xml, "3")
-
-        if (typ == 'lux') or (typ == 'temp') or ('Sensor' in lab):
-            msg = "<m2m:sub xmlns:m2m='http://www.onem2m.org/xml/protocols'\
-                rn='SUB_MY_SENSOR'><nu>http://10.42.0.1/monitor/monitor.php</nu><nct>2</nct>\
-                </m2m:sub>"
-            client = Client('http://localhost:8080/GSINWss/services/RequestHandler?wsdl')
-            client.service.sendRequest('http://10.42.0.34:8181/~/'\
-                    +loc+'-cse/mn-name/'+typ+'_'+str(i+1)+'/DATA', \
-                    'admin:admin', 'create', msg, "23")
+        lab.encode("utf-8", "ignore")
+        print lab
+        if (typ == 'lux') or (typ == 'temp') or ("Sensor" in lab):
+            print 'http://10.42.0.34:8181/~/'\
+                    +loc+'-cse/mn-name/'+typ+to_add+'/DATA'
+            try:
+                msg = "<m2m:sub xmlns:m2m='http://www.onem2m.org/xml/protocols'\
+                    rn='SUB_MY_SENSOR'><nu>http://10.42.0.1/monitor/monitor.php</nu><nct>2</nct>\
+                    </m2m:sub>"
+                client = Client('http://localhost:8080/GSINWss/services/RequestHandler?wsdl')
+                client.service.sendRequest('http://10.42.0.34:8181/~/'\
+                        +loc+'-cse/mn-name/'+typ+to_add+'/DATA', \
+                        'admin:admin', 'create', msg, "23")
+            except Exception, e:
+                print e
     except Exception, e:
         print e
 
