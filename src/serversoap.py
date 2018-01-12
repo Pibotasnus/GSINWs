@@ -50,32 +50,34 @@ def on_message(ws, message):
         test = '{"TempExt": "'+configExt.get('Config', 'temp', 1)+'"}'
         on_send(ws, test)
         for i in CLIENTS:
-            to_send = json.loads(test)
-            loc, room = i.split("_")
-            print loc, room
-            if loc in LOC:
-                for j in INFO_BS:
-                    print j
-                    print BASE_URL+"/~/"\
-                        +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la"
-                    result = requestHandler(BASE_URL+"/~/"\
-                        +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la", "admin:admin", "retrieve", "", "")
-                    print result
-                    if j == "temp":
-                        pattern = "name=&quot;Temp&quot; val=&quot;"
-                        indx = result.find(pattern)+len(pattern)
-                        value = result[indx: result.find("&quot;" , indx)]
-                        to_send['TempInt'+i] = value
-                    if j == "light":
-                        pattern = "name=&quot;State&quot; val=&quot;"
-                        indx = result.find(pattern)+len(pattern)
-                        value = result[indx: result.find("&quot;" , indx)]
-                        to_send['Light'+i] = value
-                    if j == "clim":
-                        pattern = "name=&quot;Temp&quot; val=&quot;"
-                        indx = result.find(pattern)+len(pattern)
-                        value = result[indx: result.find("&quot;" , indx)]
-                        to_send['Radiator'+i] = value
+            print i
+            if i != None:
+                to_send = json.loads(test)
+                loc, room = i.split("_")
+                print loc, room
+                if loc in LOC:
+                    for j in INFO_BS:
+                        print j
+                        print BASE_URL+"/~/"\
+                            +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la"
+                        result = requestHandler(BASE_URL+"/~/"\
+                            +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la", "admin:admin", "retrieve", "", "")
+                        print result
+                        if j == "temp":
+                            pattern = "name=&quot;Temp&quot; val=&quot;"
+                            indx = result.find(pattern)+len(pattern)
+                            value = result[indx: result.find("&quot;" , indx)]
+                            to_send['TempInt'+i] = value
+                        if j == "light":
+                            pattern = "name=&quot;State&quot; val=&quot;"
+                            indx = result.find(pattern)+len(pattern)
+                            value = result[indx: result.find("&quot;" , indx)]
+                            to_send['Light'+i] = value
+                        if j == "clim":
+                            pattern = "name=&quot;Temp&quot; val=&quot;"
+                            indx = result.find(pattern)+len(pattern)
+                            value = result[indx: result.find("&quot;" , indx)]
+                            to_send['Radiator'+i] = value
             on_send(ws, json.dumps(to_send))
 
 def on_send(ws, msg):

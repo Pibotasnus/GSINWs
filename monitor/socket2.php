@@ -55,7 +55,8 @@
 				if($user === $val){
 					foreach($this->available as $k => $b){
 						if($b === $key){
-							$this->available[$k] = "";
+							$this->available[$k] = NULL;
+							array_splice($this->available, $k, 1);
 							$this->size--;
 							$this->send($this->us['serversoap'],"Clients:".json_encode($this->available));
 						}
