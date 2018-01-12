@@ -1,0 +1,335 @@
+<html>
+    <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <title>Log in</title>
+            <!-- Tell the browser to be responsive to screen width -->
+            <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+            <!-- Bootstrap 3.3.7 -->
+            <link rel="stylesheet" href="../moodoow/bower_components/bootstrap/dist/css/bootstrap.min.css">
+            <!-- Font Awesome -->
+            <link rel="stylesheet" href="../moodoow/bower_components/font-awesome/css/font-awesome.min.css">
+            <!-- Ionicons -->
+            <link rel="stylesheet" href="../moodoow/bower_components/Ionicons/css/ionicons.min.css">
+            <!-- Theme style -->
+            <link rel="stylesheet" href="../moodoow/dist/css/AdminLTE.min.css">
+            <!-- iCheck -->
+            <link rel="stylesheet" href="../moodoow/plugins/iCheck/square/blue.css">
+            <script src="../moodoow/bower_components/jquery/dist/jquery.min.js"></script>
+        
+            <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+            <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+            <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+            <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+            <![endif]-->
+        
+    </head>
+    <body>
+        <div class="content">
+            <div class="row" style="border: 1pt solid black; padding : 40px;">
+                <div class="col-sm-2">
+                    <div class="form-group" style="position:relative; left:40%">
+                        <label style="text-align:center">
+                            Exterior temperature
+                        </label>
+                        <input id="TempExt" class="form-control" style="width:20%; left:6%; position:relative" placeholder="NA" name="tempExt" type="text" readonly/>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group" style="position:relative; left:40%">
+                        <label style="text-align:center">
+                            Interior temperature
+                        </label>
+                        <input id="TempIntGEI_4" class="form-control" style="width:20%; left:6%; position:relative" placeholder="NA" name="tempInt" type="text" readonly/>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group" style="position:relative; left:40%">
+                        <label style="text-align:center">
+                            Light State
+                        </label>
+                        <input id="LightGEI_4" class="form-control" style="width:20%; left:0%; position:relative" placeholder="NA" name="Light" type="text" readonly/>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group" style="position:relative; left:40%">
+                        <label style="text-align: center">
+                            Radiator State
+                        </label>
+                        <input id="RadiatorGEI_4" class="form-control" style="width:20%; left:0%; position:relative" placeholder="NA" name="Radiator" type="text" readonly/>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="border: 1pt solid black; padding:40px;  ">
+                <div class="col-sm-4">
+                    <label style="text-align:center; position:relative;left:40%">
+                            Création De capteur
+                    </label>
+                    <form  id="CreateSensor">   
+                        <div class="form-group" style="position:relative; left:40%" >
+                            <label style="text-align: center">Nom du capteur :</label><br/>
+                            <input type="text" name="RN" id="NameSensor" />
+                        </div>
+                        <div class="form-group" style="position:relative; left:40%" >
+                            <label style="text-align: center">Catégorie :</label><br/>
+                            <select class="form-control select2" style="width:32%;">
+                                    <option selected="selected"></option>
+                                    <option>Luminosité</option>
+                                    <option>Température</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="type" value="Sensor">
+                        <input type="hidden" name="Dep_Salle" value="Gei_1">    
+                        <input type="button" value="Submit" id="createSensor" class="btn btn-sm" style="width:20%; left:46%;position:relative" name="CreateAE" >
+                    </form>
+                </div>
+                <div class="col-sm-3">
+                    <label style="text-align:center; position:relative;left:40%">
+                        Création d'objet
+                    </label>
+                    <form action="#" method="POST" id="CreateObject">   
+                        <div class="form-group" style="position:relative; left:40%" >
+                            <label style="text-align: center">Nom de l'objet :</label><br/>
+                            <input type="text" name="RN" id="NameObject" />
+                        </div>
+                        <div class="form-group" style="position:relative; left:40%" >
+                            <label style="text-align: center">Catégorie :</label><br/>
+                            <select class="form-control select2" style="width:32%;">
+                                    <option selected="selected"></option>
+                                    <option>Radiateur</option>
+                                    <option>Porte</option>
+                                    <option>Fenêtre</option>
+                                    <option>Lampe</option>
+                            </select>
+                        </div>
+                        <input type="hidden" name="type" value="Object">
+                        <input type="hidden" name="Dep_Salle" value="GEI_1">    
+                        <input type="button" id="submitObject" value="Submit" class="btn btn-sm" style="width:20%; left:46%;position:relative" name="CreateAE" >
+                    </form>    
+                </div>
+                <div class="col-sm-3" >
+                    <label style="position:relative;left:40%">
+                        Logs
+                    </label>
+                    <div style="overflow : auto; height:20%" >
+                        <table >
+                            <ul id="LogsTable">
+                                
+                            </ul>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div id="ListeObjets">
+                        
+                    </div>
+                </div>
+            </div> 
+            <!-- définition des conditions -->
+            <form  id="setConditions" >
+                <div class="row" style="border: 1pt solid black; padding:40px">
+                    
+                    <div class="col-sm-4">
+                        <div class="center-block">
+                            <label style="text-align:center; ">
+                                    Définir les conditions :
+                            </label>
+                            <div class="form-group"  >
+                                <label style="text-align: center">Température Max :</label><br/>
+                                <input type="text" name="TempMax" id="TempMax" style="width:20%"/>
+                            </div>
+                            <div class="form-group" >
+                                <label style="text-align:center">Température Min :</label><br/>
+                                <input type="text" name="TempMin" id="TempMin" style="width:20%">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="center-block">
+                            <label style="text-align:center;">
+                                    Définir les conditions :
+                            </label>
+                            <!-- <div class="form-group"  >
+                                <label style="text-align: center">Luminosité Max :</label><br/>
+                                <input type="text" name="LumiMax" id="LumiMax" style="width:20%"/>
+                            </div> -->
+                            <div class="form-group" >
+                                <label style="text-align:center">Luminosité Min :</label><br/>
+                                <input type="text" name="LumiMin" id="LumiMin" style="width:20%">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="center-block">
+                        <label style="text-align:center;">
+                                Horaire de travail :
+                        </label>
+                        <div class="form-group"  >
+                            <label style="text-align: center">De :</label><br/>
+                            <input type="time" name="HoraireDeb" id="HoraireDeb" style="width:40%"/>
+                        </div>
+                        <div class="form-group" >
+                            <label style="text-align:center">à :</label><br/>
+                            <input type="time" name="HoraireFin" id="HoraireFin" style="width:40%">
+                        </div>
+                        </div>
+                    </div>
+                
+                    <div class="col-sm-1">
+                        <div class="center-block">
+                            <input style="position:absolute; top:60px; width:80px; height:60px" class="btn-danger" type="button"  value="Définir" name="Def" id="Def">
+                        </div>
+                    </div>
+                </div>
+            </form>
+           
+        </div>
+	 
+<script src="../moodoow/bower_components/jquery-ui/jquery-ui.min.js"></script>
+        <script>
+            // var x="";
+            
+         
+            //     // var xhttp = new XMLHttpRequest();           
+            //     // var myObj = JSON.parse(this.responseText)
+            
+            //     var myObj= {
+            //         "type": [
+            //             { "name": "Sensor", "rn":["sensor1", "sensor2","sensor4","sensor6"]},
+            //             { "name": "Object", "rn":["Object1", "Object2"]},
+            //         ]
+            //     }
+            //     for (i in myObj.type){                 
+            //         x+="<h4 style='text-align:center'>"+myObj.type[i].name+"<h4>";
+                    
+            //         for (j in myObj.type[i].rn){
+                        
+            //             x+="<div><label style='font-size:1em;'>"+myObj.type[i].rn[j]+"</label><input type='button' style='right:0%; position:absolute' value='Supprimer'><input type='button' style='right:20%; position:absolute' value='Toggle'></div>";  
+                        
+            //         }
+                    
+            //     }
+            //     document.getElementById("ListeObjets").innerHTML = x;
+            //     // // xhttp.open("GET","Script.php?Type=Objets",true);
+            //     // // xhttp.send();
+            $(document).ready(function () {
+		init();
+                /* $("#Def").click(function(){
+                    
+                    $.ajax({
+                        url: 'test1.php',
+                        type : 'post',
+                        dataType: 'json',
+                        data: $("#setConditions").serialize(),
+                        success : function(result){
+                        
+                        },  
+                        
+                    })
+                    e.preventDefault();
+                });
+                $("#CreateSensor").click(function(){
+                    
+                    $.ajax({
+                        url: 'test1.php',
+                        type : 'post',
+                        dataType: 'json',
+                        data: $("#setConditions").serialize(),
+                        success : function(result){
+                        
+                        },  
+                        
+                    })
+                    e.preventDefault();
+                });
+                $("#CreateObject").click(function(){
+                    
+                    $.ajax({
+                        url: 'test1.php',
+                        type : 'post',
+                        dataType: 'json',
+                        data: $("#setConditions").serialize(),
+                        success : function(result){
+                        
+                        },  
+                        
+                    })
+                    e.preventDefault();
+                });
+                // HOW I DISPLAYED THE LOGS 
+               var vect =  ["objet crée","noeud créer","chauffage allumé","chauffage éteint"];
+               var x="";
+               var i=0;
+
+               for (i in vect){
+                   x+="<li>"+vect[i]+"</li>";
+                   $("#LogsTable").append(x);
+               }
+	      */
+            });
+       
+
+        
+        </script>  
+<script>			
+		    var socket;
+		    var counter;
+		    
+		    function init() {
+		        var host = "ws://localhost:9090/"; // SET THIS TO YOUR SERVER
+		        try {
+		            socket = new WebSocket(host);
+		            socket.onopen    = function(msg) { 
+		                                   console.log("Welcome - status "+this.readyState);
+						   send("SET SRC :GEI_4");
+		                               };
+		            socket.onmessage = function(msg) { 
+		                                   log(msg);
+		                               };
+		            socket.onclose   = function(msg) { 
+		                                   console.log("Disconnected - status "+this.readyState); 
+		                               };
+		        }
+		        catch(ex){ 
+		            console.log(ex); 
+		        }
+		    }
+		    
+		    function send(msg){
+			if(!msg) { 
+				alert("Message can not be empty"); 
+				return; 
+			}
+			try { 
+				socket.send(msg);  
+			} catch(ex) { 
+				console.log(ex); 
+			}
+		    }
+		    function quit(){
+		        if (socket != null) {
+		            console.log("Goodbye!");
+		            socket.close();
+		            socket=null;
+		        }
+		    }
+		    
+		    function reconnect() {
+		        quit();
+		        init();
+		    }
+
+		    function $(id){ return document.getElementById(id); }
+		    function log(msg){
+			var jso = JSON.parse(msg.data);
+			document.getElementById("TempExt").placeholder = jso.TempExt;
+			document.getElementById("TempIntGEI_4").placeholder = jso.TempIntGEI_4; 
+			document.getElementById("LightGEI_4").placeholder = jso.LightGEI_4; 
+			document.getElementById("RadiatorGEI_4").placeholder = jso.RadiatorGEI_4;  
+		    }
+		    function onkey(event){ if(event.keyCode==13){ send(); } }
+		</script>
+    </body>
+</html>
+
