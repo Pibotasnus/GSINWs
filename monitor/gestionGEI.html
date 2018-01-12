@@ -64,49 +64,36 @@
             <div class="row" style="border: 1pt solid black; padding:40px;  ">
                 <div class="col-sm-4">
                     <label style="text-align:center; position:relative;left:40%">
-                            Création De capteur
+                            Création De Resource
                     </label>
-                    <form  id="CreateSensor">   
-                        <div class="form-group" style="position:relative; left:40%" >
-                            <label style="text-align: center">Nom du capteur :</label><br/>
+                    <form action="" method="POST" >   
+                        <div class="form-group" style="position:relative; left:60%" >
+                            <label style="text-align: center">Nom du AE :</label><br/>
                             <input type="text" name="RN" id="NameSensor" />
                         </div>
-                        <div class="form-group" style="position:relative; left:40%" >
+                        <div class="form-group" style="position:relative; left:60%" >
                             <label style="text-align: center">Catégorie :</label><br/>
-                            <select class="form-control select2" style="width:32%;">
+                            <select class="form-control select2" style="width:42%;" id="CatSens">
                                     <option selected="selected"></option>
-                                    <option>Luminosité</option>
-                                    <option>Température</option>
+                                    <option value="lux">Luminosity</option>
+                                    <option value="temp">Temperature</option>
+				    <option value="clim">Radiateur</option>
+                                    <option value="door">Porte</option>
+                                    <option value="window">Fenêtre</option>
+                                    <option value="light">Lampe</option>
                             </select>
                         </div>
-                        <input type="hidden" name="type" value="Sensor">
-                        <input type="hidden" name="Dep_Salle" value="Gei_1">    
-                        <input type="button" value="Submit" id="createSensor" class="btn btn-sm" style="width:20%; left:46%;position:relative" name="CreateAE" >
+                        <div class="form-group" style="position:relative; left:60%" >
+                            <label style="text-align: center">Type :</label><br/>
+                            <select class="form-control select2" style="width:42%;" id="CatSens">
+                                    <option selected="selected"></option>
+                                    <option value="Sensor">Sensor</option>
+                                    <option value="Object">Object</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="LocationSens" value="GEI_4">    
+                        <input id="createAE" value="Create" class="form-control" style="width:20%; left:60%;position:relative" name="CreateAE" type="button" onclick="submitsens();">
                     </form>
-                </div>
-                <div class="col-sm-3">
-                    <label style="text-align:center; position:relative;left:40%">
-                        Création d'objet
-                    </label>
-                    <form action="#" method="POST" id="CreateObject">   
-                        <div class="form-group" style="position:relative; left:40%" >
-                            <label style="text-align: center">Nom de l'objet :</label><br/>
-                            <input type="text" name="RN" id="NameObject" />
-                        </div>
-                        <div class="form-group" style="position:relative; left:40%" >
-                            <label style="text-align: center">Catégorie :</label><br/>
-                            <select class="form-control select2" style="width:32%;">
-                                    <option selected="selected"></option>
-                                    <option>Radiateur</option>
-                                    <option>Porte</option>
-                                    <option>Fenêtre</option>
-                                    <option>Lampe</option>
-                            </select>
-                        </div>
-                        <input type="hidden" name="type" value="Object">
-                        <input type="hidden" name="Dep_Salle" value="GEI_1">    
-                        <input type="button" id="submitObject" value="Submit" class="btn btn-sm" style="width:20%; left:46%;position:relative" name="CreateAE" >
-                    </form>    
                 </div>
                 <div class="col-sm-3" >
                     <label style="position:relative;left:40%">
@@ -137,11 +124,11 @@
                             </label>
                             <div class="form-group"  >
                                 <label style="text-align: center">Température Max :</label><br/>
-                                <input type="text" name="TempMax" id="TempMax" style="width:20%"/>
+                                <input type="text" name="TempMaxGEI" id="TempMax" style="width:20%"/>
                             </div>
                             <div class="form-group" >
                                 <label style="text-align:center">Température Min :</label><br/>
-                                <input type="text" name="TempMin" id="TempMin" style="width:20%">
+                                <input type="text" name="TempMinGEI" id="TempMin" style="width:20%">
                             </div>
                         </div>
                     </div>
@@ -156,7 +143,7 @@
                             </div> -->
                             <div class="form-group" >
                                 <label style="text-align:center">Luminosité Min :</label><br/>
-                                <input type="text" name="LumiMin" id="LumiMin" style="width:20%">
+                                <input type="text" name="LumiMinGEI" id="LumiMin" style="width:20%">
                             </div>
                         </div>
                     </div>
@@ -167,18 +154,19 @@
                         </label>
                         <div class="form-group"  >
                             <label style="text-align: center">De :</label><br/>
-                            <input type="time" name="HoraireDeb" id="HoraireDeb" style="width:40%"/>
+                            <input type="time" name="HoraireDebGEI" id="HoraireDeb" style="width:40%"/>
                         </div>
                         <div class="form-group" >
                             <label style="text-align:center">à :</label><br/>
-                            <input type="time" name="HoraireFin" id="HoraireFin" style="width:40%">
+                            <input type="time" name="HoraireFinGEI" id="HoraireFin" style="width:40%">
+			    <input type="hidden" name="location" id="location" value="GEI" style="width:40%">
                         </div>
                         </div>
                     </div>
                 
                     <div class="col-sm-1">
                         <div class="center-block">
-                            <input style="position:absolute; top:60px; width:80px; height:60px" class="btn-danger" type="button"  value="Définir" name="Def" id="Def">
+                            <input style="position:absolute; top:60px; width:80px; height:60px" class="btn-danger" type="button"  value="Définir" name="Def" id="Def" onclick="submitform();">
                         </div>
                     </div>
                 </div>
@@ -213,40 +201,62 @@
             //     document.getElementById("ListeObjets").innerHTML = x;
             //     // // xhttp.open("GET","Script.php?Type=Objets",true);
             //     // // xhttp.send();
+	    function submitform(){
+                var teMM = document.getElementById("TempMax").value;
+                var temm = document.getElementById("TempMin").value;
+                var luxmin = document.getElementById("LumiMin").value;
+                var loc = document.getElementById("location").value;
+                var data= [loc, teMM, temm, luxmin];
+                // data = JSON.stringigfy(data);
+
+                jQuery.ajax({
+                    type: "POST",
+                    url: "http://10.42.0.1/monitor/xmlHandler.php",
+                    data: {tosend : data},
+                    success: function(response){
+                        alert(response);
+                    },
+                    error: function(e){
+                        console.log(e.message);
+                    }
+                });
+                // xhttp.open("GET","xmlHandler.php?sense="+data,true);
+                // xhttp.send();
+                
+            }
+		
+	    function submitsens(){
+                var rn = document.getElementById("NameSensor").value;
+                var loc = document.getElementById("LocationSens").value;
+                var op = document.getElementById("CatSens");
+                var cat = op.options[op.selectedIndex].value;
+                var data= {
+                    "ae": [
+                        { "Name": rn+"_"+loc, "AppName": rn+"_"+loc, "AppID": rn+"_"+loc, "Name": rn+"_"+loc, "RequestReachability": false, "Label": "Location/"+loc+" Type/Sensor Category/"+cat},
+                    ]
+                }
+                // data = JSON.stringigfy(data);
+                jQuery.ajax({
+                    type: "POST",
+                    url: "http://10.42.0.1/monitor/xmlHandler.php",
+                    data: {tosend : data},
+                    success: function(response){
+                        alert(response);
+                    },
+                    error: function(e){
+                        console.log(e.message);
+                    }
+                });
+                // xhttp.open("GET","xmlHandler.php?sense="+data,true);
+                // xhttp.send();
+                
+            }
+
             $(document).ready(function () {
 		init();
-                /* $("#Def").click(function(){
-                    
+                $("Def").click(function(){
                     $.ajax({
-                        url: 'test1.php',
-                        type : 'post',
-                        dataType: 'json',
-                        data: $("#setConditions").serialize(),
-                        success : function(result){
-                        
-                        },  
-                        
-                    })
-                    e.preventDefault();
-                });
-                $("#CreateSensor").click(function(){
-                    
-                    $.ajax({
-                        url: 'test1.php',
-                        type : 'post',
-                        dataType: 'json',
-                        data: $("#setConditions").serialize(),
-                        success : function(result){
-                        
-                        },  
-                        
-                    })
-                    e.preventDefault();
-                });
-                $("#CreateObject").click(function(){
-                    
-                    $.ajax({
-                        url: 'test1.php',
+                        url: 'http://10.42.0.1/monitor/xmlHandler.php',
                         type : 'post',
                         dataType: 'json',
                         data: $("#setConditions").serialize(),
@@ -266,7 +276,7 @@
                    x+="<li>"+vect[i]+"</li>";
                    $("#LogsTable").append(x);
                }
-	      */
+	      
             });
        
 

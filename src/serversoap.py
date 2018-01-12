@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """
 @author: Pibotasnus
 """
@@ -15,6 +16,7 @@ import json
 import ConfigParser
 import websocket
 import time
+from util.archicreator import *
 from gc import collect
 from zeep import Client as cl
 from threading import Thread
@@ -35,8 +37,8 @@ class FuncThread(Thread):
         self._target(*self._args)
 
 INFO_BS = ['temp', 'light', 'clim']
-LOC = ['GM', 'GP', 'GEI']
-ROOMS = {'GM':4, 'GP':3, 'GEI':5}
+LOC_ = ['GM', 'GP', 'GEI']
+ROOMS_ = {'GM':4, 'GP':3, 'GEI':5}
 
 def on_message(ws, message):
     """ Recv msg """
@@ -55,13 +57,13 @@ def on_message(ws, message):
                 to_send = json.loads(test)
                 loc, room = i.split("_")
                 print loc, room
-                if loc in LOC:
+                if loc in LOC_:
                     for j in INFO_BS:
                         print j
                         print BASE_URL+"/~/"\
                             +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la"
                         result = requestHandler(BASE_URL+"/~/"\
-                            +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la", "admin:admin", "retrieve", "", "")
+                            +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la", ORIGINATOR, "retrieve", "", "")
                         print result
                         if j == "temp":
                             pattern = "name=&quot;Temp&quot; val=&quot;"
@@ -313,39 +315,30 @@ class Server(object):
                                     with open('Config/EXT.cfg', 'wb') as configfile:
                                         config.write(configfile)
                             if pseudo[client] == "admin":
-                                location = msg
-                                config = ConfigParser.ConfigParser()
-                                obj_name = sur[3]
-                                type = obj_name.split('_')[0]
-                                if location is not "EXT":
-                                    config.read("Config/"+location+".cfg")
-                                    if type == "lux":
-                                        pattern = "name=&quot;Lux&quot; val=&quot;"
-                                        indx = msg.find(pattern)+len(pattern)
-                                        value = int(msg[indx: msg.find("&quot;" , indx)])
-                                        constraints = "{'lux_min': "+config.get('Config', 'lux_min', 0)+", 'lux_ext':\
-                                                        "+configExt.get('Config', 'lux', 1)+"}"
-                                    if type == 'temp':
-                                        pattern = "name=&quot;Temp&quot; val=&qusot;"
-                                        indx = msg.find(pattern)+len(pattern)
-                                        value = int(msg[indx: msg.find("&quot;" , indx)])
-                                        constraints = "{'temp_min': "+config.get('Config', 'temp_min', 0)+", 'temp_max':\
-                                                         "+config.get('Config', 'temp_max', 0)+", 'temp_ext': "+configExt.get('Config', 'temp', 1)+"}"
-                                    result = decider(type, constraints, value)
-                                    logg(result+" in "+location+" for "+obj_name)
-                                    interpreter(result, sur, type)
+                                client.send("Got request, Working on it")
+                                if 'ae' in msg:
+                                    loc = msg.split("_")[1]
+                                    typ = msg.split("_")[0].split('":"')[-1]
+                                    i   = int(msg.split('_')[2].split('","')[0])
+                                    lab = msg.split('Label":"')[-1].split('"}]}')[0]
+                                    try:
+                                        createresource(loc, typ, i-1, lab)
+                                    except Exception, e:
+                                        print "Couldn't do it: %s" % e
                                 else:
-                                    if type == "lux":
-                                        pattern = "name=&quot;Lux&quot; val=&quot;"
-                                        indx = msg.find(pattern)+len(pattern)
-                                        value = msg[indx: msg.find("&quot;" , indx)]
-                                    if type == 'temp':
-                                        pattern = "name=&quot;Temp&quot; val=&quot;"
-                                        indx = msg.find(pattern)+len(pattern)
-                                        value = msg[indx: msg.find("&quot;" , indx)]
-                                    config.set('Config', type, value)
-                                    with open('Config/EXT.cfg', 'wb') as configfile:
-                                        config.write(configfile)
+                                    try:
+                                        configu = ConfigParser.ConfigParser()
+                                        param = json.loads(msg)
+                                        configu.read("Config/"+param[0]+".cfg")
+                                        configu.set('Config', "temp_max", param[1])
+                                        configu.set('Config', "temp_min", param[2])
+                                        configu.set('Config', "lux_min", param[3])
+                                        with open("Config/"+param[0]+".cfg", 'wb') as configfile:
+                                            configu.write(configfile)
+                                    except Exception, e:
+                                        print "An error has occured: %s" %e
+
+                                
                     except:
                         print "[-] Something went wrong !"
             collect()
