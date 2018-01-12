@@ -14,9 +14,11 @@ import time
 from gc import collect
 from zeep import Client as cl
 from threading import Thread
+from datetime import datetime
 
 BASE_URL = 'http://10.42.0.34:8181'
 ORIGINATOR = 'admin:admin'
+CLIENTS = []
 
 class FuncThread(Thread):
     """ Redefining the thread class """
@@ -28,9 +30,49 @@ class FuncThread(Thread):
     def run(self):
         self._target(*self._args)
 
+INFO_BS = ['temp', 'light', 'clim']
+LOC = ['GM', 'GP', 'GEI']
+ROOMS = {'GM':4, 'GP':3, 'GEI':5}
+
 def on_message(ws, message):
     """ Recv msg """
-    print(message)
+    print message
+    global CLIENTS
+    if "Clients" in message:
+        configExt = ConfigParser.ConfigParser()
+        configExt.read("Config/EXT.cfg")
+        if "dont" not in message:
+            CLIENTS = json.loads(message.split(":")[1])
+        test = '{"TempExt": "'+configExt.get('Config', 'temp', 1)+'"}'
+        on_send(ws, test)
+        for i in CLIENTS:
+            to_send = json.loads(test)
+            loc, room = i.split("_")
+            print loc, room
+            if loc in LOC:
+                for j in INFO_BS:
+                    print j
+                    print BASE_URL+"/~/"\
+                        +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la"
+                    result = requestHandler(BASE_URL+"/~/"\
+                        +loc+"-cse/mn-name/"+j+"_"+room+"/DATA/la", "admin:admin", "retrieve", "", "")
+                    print result
+                    if j == "temp":
+                        pattern = "name=&quot;Temp&quot; val=&quot;"
+                        indx = result.find(pattern)+len(pattern)
+                        value = result[indx: result.find("&quot;" , indx)]
+                        to_send['TempInt'+i] = value
+                    if j == "light":
+                        pattern = "name=&quot;State&quot; val=&quot;"
+                        indx = result.find(pattern)+len(pattern)
+                        value = result[indx: result.find("&quot;" , indx)]
+                        to_send['Light'+i] = value
+                    if j == "clim":
+                        pattern = "name=&quot;Temp&quot; val=&quot;"
+                        indx = result.find(pattern)+len(pattern)
+                        value = result[indx: result.find("&quot;" , indx)]
+                        to_send['Radiator'+i] = value
+            on_send(ws, json.dumps(to_send))
 
 def on_send(ws, msg):
     """ Send msg """
@@ -50,6 +92,7 @@ def on_close(ws):
 def on_open(ws):
     """ Opening com """
     def run(*args):
+        ws.send("SET SRC :serversoap")
         time.sleep(1)
 
     Thread(target=run).start()
@@ -89,7 +132,7 @@ def light(url, action):
     config.read('Config/json_samples.cfg')
     config.set('cinDATA', 'state', action)
     cin = client.service.getXMLRep(config.get('cinDATA', 'light', 0))
-    print requestHandler(url, ORIGINATOR, 'create', cin, "4")
+    requestHandler(url, ORIGINATOR, 'create', cin, "4")
     
 def window(url, action):
     if action == 'lock':
@@ -101,7 +144,7 @@ def window(url, action):
     config.read('Config/json_samples.cfg')
     config.set('cinDATA', 'state', action)
     cin = client.service.getXMLRep(config.get('cinDATA', 'window', 0))
-    print requestHandler(url, ORIGINATOR, 'create', cin, "4")
+    requestHandler(url, ORIGINATOR, 'create', cin, "4")
 
 def curtain(url, action):
     if action == 'open':
@@ -113,7 +156,7 @@ def curtain(url, action):
     config.read('Config/json_samples.cfg')
     config.set('cinDATA', 'state', action)
     cin = client.service.getXMLRep(config.get('cinDATA', 'curtain', 0))
-    print requestHandler(url, ORIGINATOR, 'create', cin, "4")
+    requestHandler(url, ORIGINATOR, 'create', cin, "4")
 
 def clim(url, action):
     client = cl('http://localhost:8080/GSINWss/services/MapperWs?wsdl')
@@ -121,7 +164,7 @@ def clim(url, action):
     config.read('Config/json_samples.cfg')
     config.set('cinDATA', 'temp', action)
     cin = client.service.getXMLRep(config.get('cinDATA', 'clim', 0))
-    print requestHandler(url, ORIGINATOR, 'create', cin, "4")
+    requestHandler(url, ORIGINATOR, 'create', cin, "4")
 
 def requestHandler(url, originator, action, data, type):
     client = cl('http://localhost:8080/GSINWss/services/RequestHandler?wsdl')
@@ -142,6 +185,10 @@ def interpreter(result, sur, type):
     except:
         print 'Nothing to be done'
 
+def logg(msg):
+    with open("Logs/log-"+datetime.now().date(), "a") as log:
+        log.write("\n"+datetime.now().time()+" "+ msg)
+
 AVAILABLE = {
     'light'  : light,
     'window' : window,
@@ -149,6 +196,8 @@ AVAILABLE = {
     'clim'   : clim,
     'curtain': curtain
 }
+
+
 
 def runWebSocketClient(ws):
     ws.run_forever()
@@ -181,6 +230,8 @@ class Server(object):
         pseudo = {}
         client_location = 'in'
         c = 0
+        configExt = ConfigParser.ConfigParser()
+        configExt.read("Config/EXT.cfg")
         while 1:
             rlist, wlist, xlist = select.select([self.socket]+opens,[],[])
             for client in rlist:
@@ -209,17 +260,15 @@ class Server(object):
                             print "[-] "+pseudo[client]+" disconnected."
                             del pseudo[client]
                         else:
-                            print '[+] Got '+msg+ '\nFrom :'+pseudo[client]
+                            # print '[+] Got '+msg+ '\nFrom :'+pseudo[client]
                             if pseudo[client] == "monitor":
-                                on_send(ws, msg)
+                                on_message(ws, "Clients dont")
                                 sur = msg[msg.find("<sur>")+5:msg.find("</sur>")]
                                 print '[!] sur: '+sur
                                 location = sur.split('-')[0]
                                 location = location.replace('/','')
                                 print '[!] location: '+location
                                 config = ConfigParser.ConfigParser()
-                                configExt = ConfigParser.ConfigParser()
-                                configExt.read("Config/EXT.cfg")
                                 obj_name = sur.split('/')[3]
                                 print '[!] Object Name: '+obj_name
                                 type = obj_name.split('_')[0]
@@ -234,13 +283,14 @@ class Server(object):
                                         constraints = "{'lux_min': "+config.get('Config', 'lux_min', 0)+", 'lux_ext':"+configExt.get('Config', 'lux', 1)+"}"
                                         print "[!] Constraints are "+str(constraints)
                                     if type == 'temp':
-                                        pattern = "name=&quot;Temp&quot; val=&qusot;"
+                                        pattern = "name=&quot;Temp&quot; val=&quot;"
                                         indx = msg.find(pattern)+len(pattern)
-                                        value = int(msg[indx: msg.find("&quot;" , indx)])
+                                        value = msg[indx: msg.find("&quot;" , indx)]
                                         print '[!] Value of temp: '+value
                                         constraints = "{'temp_min': "+config.get('Config', 'temp_min', 0)+", 'temp_max':"+config.get('Config', 'temp_max', 0)+", 'temp_ext':"+configExt.get('Config', 'temp', 1)+"}"
                                     result = decider(type, constraints, value)
                                     print '[!] Decision: '+result
+                                    # logg(result+" in "+location+" for "+obj_name)
                                     result = result.split('\n')
                                     for op in result:
                                         interpreter(op, sur, type)
@@ -259,8 +309,6 @@ class Server(object):
                             if pseudo[client] == "admin":
                                 location = msg
                                 config = ConfigParser.ConfigParser()
-                                configExt = ConfigParser.ConfigParser()
-                                configExt.read("Config/EXT.cfg")
                                 obj_name = sur[3]
                                 type = obj_name.split('_')[0]
                                 if location is not "EXT":
@@ -278,6 +326,7 @@ class Server(object):
                                         constraints = "{'temp_min': "+config.get('Config', 'temp_min', 0)+", 'temp_max':\
                                                          "+config.get('Config', 'temp_max', 0)+", 'temp_ext': "+configExt.get('Config', 'temp', 1)+"}"
                                     result = decider(type, constraints, value)
+                                    logg(result+" in "+location+" for "+obj_name)
                                     interpreter(result, sur, type)
                                 else:
                                     if type == "lux":
