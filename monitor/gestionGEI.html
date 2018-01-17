@@ -254,19 +254,7 @@
 
             $(document).ready(function () {
 		init();
-                $("Def").click(function(){
-                    $.ajax({
-                        url: 'http://10.42.0.1/monitor/xmlHandler.php',
-                        type : 'post',
-                        dataType: 'json',
-                        data: $("#setConditions").serialize(),
-                        success : function(result){
-                        
-                        },  
-                        
-                    })
-                    e.preventDefault();
-                });
+               
                 // HOW I DISPLAYED THE LOGS 
                var vect =  ["objet crée","noeud créer","chauffage allumé","chauffage éteint"];
                var x="";

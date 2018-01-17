@@ -15,7 +15,7 @@
 	echo $rep;
 	$message = json_encode($_POST["tosend"]);
 	socket_write($socket, $message, strlen($message)) or die("Could not send data to server\n");
-	$rep = socket_read ($socket, 1024) or die("Could not read server response\n");
-	echo $rep;
+	// $rep = socket_read ($socket, 1024) or die("Could not read server response\n");
+	// echo $rep;
 	socket_close($socket);
 ?>
