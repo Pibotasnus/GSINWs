@@ -137,7 +137,7 @@ def light(url, action):
     requestHandler(url, ORIGINATOR, 'create', cin, "4")
     
 def window(url, action):
-    if action == 'lock':
+    if action == 'open':
         action = True
     else:
         action = False
@@ -289,6 +289,7 @@ class Server(object):
                                         value = msg[indx: msg.find("&quot;" , indx)]
                                         print '[!] Value of temp: '+value
                                         constraints = "{'temp_min': "+config.get('Config', 'temp_min', 0)+", 'temp_max':"+config.get('Config', 'temp_max', 0)+", 'temp_ext':"+configExt.get('Config', 'temp', 1)+"}"
+                                        print constraints
                                     result = decider(type, constraints, value)
                                     print '[!] Decision: '+result
                                     # logg(result+" in "+location+" for "+obj_name)
