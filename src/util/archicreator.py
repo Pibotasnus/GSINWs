@@ -58,7 +58,7 @@ def createresource(loc, typ, i, lab):
                         +loc+'-cse/mn-name/'+typ+to_add+'/DATA', \
                         'admin:admin', 'create', msg, "23")
             except Exception, e:
-                print e
+                print "Didn't work"+e
     except Exception, e:
         print e
 
